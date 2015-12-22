@@ -49,14 +49,9 @@ default_xml = '''<netconf-state xmlns="urn:ietf:params:xml:ns:yang:ietf-netconf-
   <schemas/>
 </netconf-state>'''
 
-# use decorators to link the function to a url
 @app.route('/')
-def home():
-    redirect('/netconf')
-
-@app.route('/welcome')
-def welcome():
-    return render_template('welcome.html')  # render a template
+def index():
+    return redirect(url_for('netconf'))
 
 @app.route('/netconf', methods=['GET', 'POST'])
 def netconf():
