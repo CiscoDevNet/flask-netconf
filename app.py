@@ -65,6 +65,8 @@ def netconf():
             kw['response'] = script_template.render(FILL_THIS=kw['xml'])
         elif kw['submit']=='send':
             try:
+                if not (device_port in kw):
+                    kw['device_port'] = 830
                 m =  manager.connect(host=kw['device_ip'],
                                      port=int(kw['device_port']),
                                      username=kw['username'],
@@ -84,5 +86,5 @@ def netconf():
 
 # start the server with the 'run()' method
 if __name__ == '__main__':
-    app.run(host="0.0.0.0". port=8080)
+    app.run(host="0.0.0.0", port=8080)
     netconf
