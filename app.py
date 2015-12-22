@@ -3,6 +3,7 @@ from flask import Flask, render_template, redirect, url_for, request
 from jinja2 import Template
 from ncclient import manager
 from ncclient.operations import RPCError
+from ncclient.transport import SSHError
 
 # create the application object
 app = Flask(__name__)
@@ -73,6 +74,8 @@ def netconf():
                 m.close_session()
             except RPCError as e:
                 kw['response'] = e.info
+            except SSHError as e:
+                kw['response'] = e.message
             except:
                 kw['response'] = 'Unknown error!!'
     else:
@@ -81,5 +84,5 @@ def netconf():
 
 # start the server with the 'run()' method
 if __name__ == '__main__':
-    app.run()
+    app.run(host="0.0.0.0". port=8080)
     netconf

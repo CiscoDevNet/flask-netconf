@@ -63,7 +63,7 @@ Successfully installed Flask-0.10.1 Jinja2-2.8 MarkupSafe-0.23 Werkzeug-0.11.3 i
 
 ```
 
-At this point you may open the link [http://127.0.0.1:5000/netconf](http://127.0.0.1:5000/netconf)!
+At this point you may open the link [http://127.0.0.1:8080/netconf](http://127.0.0.1:8080/netconf)!
 
 ## Q&A
 
