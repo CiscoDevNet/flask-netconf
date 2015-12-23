@@ -71,14 +71,6 @@
                             </div>                             
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group"> 
-                                <label class="control-label" for="formInput99">Device Response or Generated Code</label>                                 
-                                <textarea class="form-control" rows="10" name="response" id="responseOrCode" style="font-family:monospace;">{{response}}</textarea>
-                            </div>                             
-                        </div>
-                    </div>
                 </div>
                 <div class="container">
                     <div class="form-group"> 
@@ -87,6 +79,15 @@
                         <div class="col-md-12">
                             <button type="submit" name="submit" value="send" class="btn btn-primary">Send Netconf Request</button>
                             <button type="submit" name="submit" value="generate" class="btn">Generate Python Code</button>                             
+                        </div>
+                    </div>
+                </div>
+                <div class="container">
+                    <br />
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label class="control-label crsa-selected" for="formInput99">Device Response or Generated Code</label>
+                            <pre>{{response}}</pre> 
                         </div>
                     </div>
                 </div>                 

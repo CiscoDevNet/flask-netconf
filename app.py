@@ -90,8 +90,8 @@ def netconf_get():
                                          password=kw['password'],
                                          device_params={'name':"csr"})
                     session_cache[session_key] = m
-                    c = m.get('<filter>'+kw['xml']+'</filter>').data_xml
-                    kw['response'] = etree.tostring(etree.fromstring(c), pretty_print=True)
+                c = m.get('<filter>'+kw['xml']+'</filter>').data_xml
+                kw['response'] = etree.tostring(etree.fromstring(c), pretty_print=True)
             except RPCError as e:
                 kw['response'] = e.info
             except SSHError as e:
