@@ -18,12 +18,18 @@
     <![endif]-->
     </head>
     <body>
+        <ol class="breadcrumb"> 
+            <li>
+                <a href="/">Home</a>
+            </li>             
+            <li>{{operation}}</li>             
+        </ol>
         <div class="container">
-            <h1>Netconf Request &amp; Python Code Generator</h1>
-            <p class="lead">This simple web application allows a developer to input XML netconf get requests and generates an equivalent Python script, using the ncclient library, to perform the same request.</p>
+            <h1>NETCONF '{{operation}}' Request &amp; Python Code Generator</h1>
+            <p class="lead">This simple web application allows a developer to create simple NETCONF {{operation}} requests and generates an equivalent Python script, using the ncclient library, to perform the same request.</p>
         </div>
         <div class="container">
-            <form role="form" action="netconf" method="post">
+            <form role="form" action="{{uri}}" method="post">
                 <div class="container">
                     <div class="row">
                         <div class="col-md-6">
@@ -58,7 +64,9 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group"> 
-                                <label class="control-label" for="formInput95">XML Filter For Netconf Get Request</label>                                 
+                                <label class="control-label" for="formInput95">XML payload for NETCONF {{operation}} request
+                                    <span class="glyphicon glyphicon-question-sign" id="example"></span>
+                                </label>
                                 <textarea class="form-control" rows="5" id="xmlInput" name="xml" style="font-family:monospace;">{{xml}}</textarea>
                             </div>                             
                         </div>
@@ -83,6 +91,24 @@
                     </div>
                 </div>                 
             </form>
+            <!-- Modal -->
+            <div class="modal fade" id="exampleModal" role="dialog">
+                <div class="modal-dialog">
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">NETCONF {{operation}} Help</h4>
+                        </div>
+                        <div class="modal-body">
+                            <pre>{{example}}</pre>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <!-- /.container -->
         <!-- Bootstrap core JavaScript
@@ -92,5 +118,10 @@
         <script src="static/bootstrap/js/bootstrap.min.js"></script>
         <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
         <script src="static/assets/js/ie10-viewport-bug-workaround.js"></script>
-    </body>
-</html>
+        <script>
+$(document).ready(function(){
+    $("#example").click(function(){
+        $("#exampleModal").modal("toggle");
+    });
+});
+</script>

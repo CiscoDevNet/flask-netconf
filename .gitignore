@@ -2,4 +2,5 @@
 v/
 .DS_Store
 *.pyc
+_pgbackup/
 

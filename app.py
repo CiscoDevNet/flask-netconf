@@ -1,12 +1,16 @@
 # import the Flask class from the flask module
 from flask import Flask, render_template, redirect, url_for, request
 from jinja2 import Template
+from lxml import etree
 from ncclient import manager
 from ncclient.operations import RPCError
 from ncclient.transport import SSHError
 
 # create the application object
 app = Flask(__name__)
+
+# A simple netconf session cache
+session_cache = {}
 
 #
 # The Template Python Script for get requests
@@ -52,11 +56,17 @@ default_xml = '''<netconf-state xmlns="urn:ietf:params:xml:ns:yang:ietf-netconf-
 
 @app.route('/')
 def index():
-    return redirect(url_for('netconf'))
+    return render_template('index.html')
 
-@app.route('/netconf', methods=['GET', 'POST'])
-def netconf():
-    kw = {}
+@app.route('/netconf-get', methods=['GET', 'POST'])
+def netconf_get():
+    kw = {
+        "uri": "netconf-get",
+        "operation": "get",
+        "example": '''<netconf-state xmlns="urn:ietf:params:xml:ns:yang:ietf-netconf-monitoring">
+  <schemas/>
+</netconf-state>'''
+    }
     if request.method=='POST':
         # TODO: hacky dict copy
         for k,v in request.form.iteritems():
@@ -65,15 +75,23 @@ def netconf():
             kw['response'] = script_template.render(FILL_THIS=kw['xml'])
         elif kw['submit']=='send':
             try:
-                if not (device_port in kw):
+                if not ('device_port' in kw):
                     kw['device_port'] = 830
-                m =  manager.connect(host=kw['device_ip'],
-                                     port=int(kw['device_port']),
-                                     username=kw['username'],
-                                     password=kw['password'],
-                                     device_params={'name':"csr"})
-                kw['response'] = m.get('<filter>'+kw['xml']+'</filter>')
-                m.close_session()
+                session_key = "-".join([kw['device_ip'],
+                                        kw['device_port'],
+                                        kw['username'],
+                                        kw['password'] ])
+                if session_key in session_cache:
+                    m = session_cache[session_key]
+                else:
+                    m =  manager.connect(host=kw['device_ip'],
+                                         port=int(kw['device_port']),
+                                         username=kw['username'],
+                                         password=kw['password'],
+                                         device_params={'name':"csr"})
+                    session_cache[session_key] = m
+                    c = m.get('<filter>'+kw['xml']+'</filter>').data_xml
+                    kw['response'] = etree.tostring(etree.fromstring(c), pretty_print=True)
             except RPCError as e:
                 kw['response'] = e.info
             except SSHError as e:
@@ -84,7 +102,32 @@ def netconf():
         kw['xml'] = default_xml
     return render_template('code-generator.html', **kw)  # render a template
 
+
+@app.route('/netconf-get-config', methods=['GET', 'POST'])
+def netconf_get_config():
+    kw = {
+        "uri": "netconf-get-config",
+        "operation": "get-config",
+        "example": '''<interfaces xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces">
+  <interface>
+    <link-up-down-trap-enable/>
+  </interface>
+</interfaces>'''
+    }
+    return render_template('code-generator.html', **kw)  # render a template
+
+
+@app.route('/netconf-edit-config', methods=['GET', 'POST'])
+def netconf_edit_config():
+    kw = {
+        "uri": "netconf-edit-config",
+        "operation": "edit-config",
+        "example": "TBD"
+    }
+    return render_template('code-generator.html', **kw)  # render a template
+
+
 # start the server with the 'run()' method
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=8080)
+    app.run(host="0.0.0.0", port=8080, debug=True)
     netconf
