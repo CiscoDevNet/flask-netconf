@@ -1,131 +1,140 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="description" content="">
-        <meta name="author" content="">
-        <title>Netconf Request &amp; Python Code Generator</title>
-        <!-- PrismJS for syntax highlighting -->
-        <link href="static/css/prism.css" rel="stylesheet" data-noprefix>
-        <!-- Bootstrap core CSS -->
-        <link href="static/bootstrap/css/bootstrap.css" rel="stylesheet">
-        <!-- Custom styles for this template -->
-        <link href="static/code-generator.css" rel="stylesheet">
-        <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-        <!--[if lt IE 9]>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Netconf Request &amp; Python Code Generator</title>
+    <!-- PrismJS for syntax highlighting -->
+    <link href="static/css/prism.css" rel="stylesheet" data-noprefix>
+    <!-- Bootstrap core CSS -->
+    <link href="static/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="static/code-generator.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
 	<script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
 	<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 	<![endif]-->
-    </head>
-    <body>
-        <ol class="breadcrumb"> 
-            <li>
-                <a href="/">Home</a>
-            </li>             
-            <li>{{operation}}</li>             
-        </ol>
+  </head>
+  <body>
+    <ol class="breadcrumb"> 
+      <li>
+        <a href="/">Home</a>
+      </li>             
+      <li>{{operation}}</li>             
+    </ol>
+    <div class="container">
+      <h1>NETCONF '{{operation}}' Request &amp; Python Code Generator</h1>
+      <p class="lead">This simple web application allows a developer to create simple NETCONF {{operation}} requests and generates an equivalent Python script, using the ncclient library, to perform the same request.</p>
+    </div>
+    <div class="container">
+      <form role="form" action="{{uri}}" name="inputs" method="post">
         <div class="container">
-            <h1>NETCONF '{{operation}}' Request &amp; Python Code Generator</h1>
-            <p class="lead">This simple web application allows a developer to create simple NETCONF {{operation}} requests and generates an equivalent Python script, using the ncclient library, to perform the same request.</p>
-        </div>
-        <div class="container">
-            <form role="form" action="{{uri}}" method="post">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group"> 
-                                <label class="control-label" for="exampleInputEmail1">Device IP Address</label>                                 
-                                <input type="text" class="form-control" id="deviceIP" placeholder="192.168.0.1" name="device_ip" value="{{device_ip}}"> 
-                            </div>                             
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group"> 
-                                <label class="control-label" for="exampleInputPassword1">Device Port</label>                                 
-                                <input type="number" class="form-control" id="devicePort" placeholder="830" name="device_port" value="{{device_port}}"> 
-                            </div>                             
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group"> 
-                                <label class="control-label" for="exampleInputPassword1">Username</label>                                 
-                                <input type="username" class="form-control" id="deviceUsername" placeholder="your username" name="username" value="{{username}}"> 
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group"> 
-                                <label class="control-label" for="exampleInputPassword1">Password</label>                                 
-                                <input type="password" class="form-control" id="devicePassword" placeholder="your password" name="password" value="{{password}}"> 
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="container">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group"> 
-                                <label class="control-label" for="formInput95">XML payload for NETCONF {{operation}} request
-                                    <span class="glyphicon glyphicon-question-sign" id="example"></span>
-                                </label>
-                                <textarea class="form-control" rows="5" id="xmlInput" name="xml" style="font-family:monospace;">{{xml}}</textarea>
-                            </div>                             
-                        </div>
-                    </div>
-                </div>
-                <div class="container">
-                    <div class="form-group"> 
-</div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <button type="submit" name="submit" value="send" class="btn btn-primary">Send Netconf Request</button>
-                            <button type="submit" name="submit" value="generate" class="btn">Generate Python Code</button>                             
-                        </div>
-                    </div>
-                </div>
-                <div class="container">
-                    <br />
-                    <div class="row">
-                        <div class="col-md-12">
-                            <label class="control-label crsa-selected" for="formInput99">Device Response or Generated Code</label>
-                            <pre><code class="language-{{language}}">{{response}}</code></pre>
-                        </div>
-                    </div>
-                </div>                 
-            </form>
-            <!-- Modal -->
-            <div class="modal fade" id="exampleModal" role="dialog">
-                <div class="modal-dialog">
-                    <!-- Modal content-->
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h4 class="modal-title">NETCONF {{operation}} Help</h4>
-                        </div>
-                        <div class="modal-body">
-                            <pre>{{example}}</pre>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        </div>
-                    </div>
-                </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="control-label">Device IP Address</label>
+                <input type="text" class="form-control" id="deviceIP" placeholder="192.168.0.1" name="device_ip" value="{{device_ip}}"> 
+              </div>                             
             </div>
+            <div class="col-md-6">
+              <div class="form-group"> 
+                <label class="control-label">Device Port</label>
+                <input type="number" class="form-control" id="devicePort" placeholder="830" name="device_port" value="{{device_port}}"> 
+              </div>                             
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group"> 
+                <label class="control-label">Username</label>
+                <input type="username" class="form-control" id="deviceUsername" placeholder="your username" name="username" value="{{username}}"> 
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group"> 
+                <label class="control-label">Password</label>
+                <input type="password" class="form-control" id="devicePassword" placeholder="your password" name="password" value="{{password}}"> 
+              </div>
+            </div>
+          </div>
         </div>
-        <!-- /.container -->
-        <!-- Bootstrap core JavaScript
+        <div class="container">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group"> 
+                <label class="control-label">XML payload for NETCONF {{operation}} request
+                  <span class="glyphicon glyphicon-question-sign" id="example"></span>
+                </label>
+                <textarea class="form-control" rows="5" id="xmlInput" name="xml" style="font-family:monospace;">{{xml}}</textarea>
+              </div>                             
+            </div>
+          </div>
+        </div>
+        <div class="container">
+          <div class="form-group"> 
+	  </div>
+          <div class="row">
+            <div class="col-md-12">
+              <button type="submit" name="submit" value="send" class="btn btn-primary">Send Netconf Request</button>
+              <button type="submit" name="submit" value="generate" class="btn">Generate Python Code</button>                             
+            </div>
+          </div>
+        </div>
+        <div class="container">
+          <br />
+          <div class="row">
+            <div class="col-md-12">
+              <label class="control-label crsa-selected">Device Response or Generated Code</label>
+              <pre><code class="language-{{language}}">{{response}}</code></pre>
+            </div>
+          </div>
+        </div>                 
+      </form>
+      <!-- Modal -->
+    </div>
+    <div class="modal fade" id="exampleModal" role="dialog">
+      <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">NETCONF {{operation}} Snippets</h4>
+          </div>
+          <div class="modal-body">
+            <pre onClick="inject_snippet(this)" data-dismiss="modal"><code>{{example}}</code></pre>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- /.container -->
+    <!-- Bootstrap core JavaScript
 	 ================================================== -->
-        <!-- Placed at the end of the document so the pages load faster -->
-        <script src="static/js/prism.js"></script>
-        <!-- script src="static/assets/js/jquery.min.js"></script -->
-        <script src="static/bootstrap/js/bootstrap.min.js"></script>
-        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-        <script src="static/assets/js/ie10-viewport-bug-workaround.js"></script>
-        <script>
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="static/js/prism.js"></script>
+    <script src="static/assets/js/jquery.min.js"></script>
+    <script src="static/bootstrap/js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="static/assets/js/ie10-viewport-bug-workaround.js"></script>
+    <script>
       $(document).ready(function(){
         $("#example").click(function(){
           $("#exampleModal").modal("toggle");
         });
       });
+
+      function toggleModal() {
+        $("#exampleModal").modal("toggle");
+      }
+
+      function inject_snippet(preobj) {
+        document.inputs.xml.value = preobj.firstChild.innerText;
+      }
     </script>

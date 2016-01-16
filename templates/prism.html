@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link href="static/css/prism.css" rel="stylesheet" />
+        <link href="static/bootstrap/css/bootstrap.css" rel="stylesheet">
+        <link href="static/code-generator.css" rel="stylesheet">
+    </head>
+    <body>
+        <pre><code class="language-xml">import sys
+from argparse import ArgumentParser
+from ncclient import manager
+if __name__ == '__main__':
+    parser = ArgumentParser(description='Select options.')
+    # Input parameters
+    parser.add_argument('--host', type=str, required=True,
+                        help="The device IP or DN")
+    parser.add_argument('-u', '--username', type=str, default='cisco',
+                        help="Go on, guess!")
+    parser.add_argument('-p', '--password', type=str, default='cisco',
+                        help="Yep, this one too! ;-)")
+    parser.add_argument('--port', type=int, default=830,
+                        help="Specify this if you want a non-default port")
+    args = parser.parse_args()
+    m =  manager.connect(host=args.host,
+                         port=args.port,
+                         username=args.username,
+                         password=args.password,
+                         device_params={'name':"csr"})
+    print m.get(data)</code></pre>
+        <script src="static/js/prism.js"></script>
+        <!--script src="static/assets/js/jquery.min.js"></script -->
+        <script src="static/bootstrap/js/bootstrap.min.js"></script>
+        <script src="static/assets/js/ie10-viewport-bug-workaround.js"></script>
+    </body>
+</html>
