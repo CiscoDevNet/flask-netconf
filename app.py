@@ -15,7 +15,7 @@ session_cache = {}
 #
 # The Template Python Script for get requests
 #
-script_template=Template("""#!/usr/bin/env python
+get_script_template=Template("""#!/usr/bin/env python
 import sys
 from argparse import ArgumentParser
 from ncclient import manager
@@ -61,18 +61,18 @@ def index():
 def netconf_get():
     kw = {
         "uri": "netconf-get",
-        "operation": "get",
+        "OPER_GET": "checked",
         "example": '''<netconf-state xmlns="urn:ietf:params:xml:ns:yang:ietf-netconf-monitoring">
   <schemas/>
 </netconf-state>'''
     }
     if request.method=='POST':
-        # TODO: hacky dict copy
         for k,v in request.form.iteritems():
-            kw[k] = v
+            if 'OPER' not in k:
+                kw[k] = v
         if kw['submit']=='generate':
             kw['language'] = 'python'
-            kw['response'] = script_template.render(FILL_THIS=kw['xml'])
+            kw['response'] = get_script_template.render(FILL_THIS=kw['xml'])
         elif kw['submit']=='send':
             try:
                 if not ('device_port' in kw):

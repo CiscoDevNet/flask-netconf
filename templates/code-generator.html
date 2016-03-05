@@ -19,7 +19,7 @@
 	<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 	<![endif]-->
   </head>
-  <body>
+  <body class="">
     <ol class="breadcrumb"> 
       <li>
         <a href="/">Home</a>
@@ -31,7 +31,7 @@
       <p class="lead">This simple web application allows a developer to create simple NETCONF {{operation}} requests and generates an equivalent Python script, using the ncclient library, to perform the same request.</p>
     </div>
     <div class="container">
-      <form role="form" action="{{uri}}" name="inputs" method="post">
+      <form role="form" action="{{uri}}" name="inputs" method="post" class="">
         <div class="container">
           <div class="row">
             <div class="col-md-6">
@@ -61,12 +61,33 @@
               </div>
             </div>
           </div>
+          <div class="row">
+            <div class="col-md-12">
+              <div class="panel">
+                <label class="control-label">Operation Type</label>                                 
+
+                <div class="container">
+                  <div class="radio">
+                    <label class="radio-inline">
+                      <input type="radio" name="oper" id="get" value="get" {{OPER_GET}}>get
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" name="oper" id="get-config" value="get-config" {{OPER_GETCONFIG}}>get-config
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" name="oper" id="edit-config" value="edit-config" {{OPER_EDITCONFIG}}>edit-config
+                    </label>
+                  </div>
+                </div>                                 
+              </div>
+            </div>
+          </div>
         </div>
         <div class="container">
           <div class="row">
             <div class="col-md-12">
               <div class="form-group"> 
-                <label class="control-label">XML payload for NETCONF {{operation}} request
+                <label class="control-label">XML parameterization for NETCONF request
                   <span class="glyphicon glyphicon-question-sign" id="example"></span>
                 </label>
                 <textarea class="form-control" rows="5" id="xmlInput" name="xml" style="font-family:monospace;">{{xml}}</textarea>
@@ -105,7 +126,7 @@
             <h4 class="modal-title">NETCONF {{operation}} Snippets</h4>
           </div>
           <div class="modal-body">
-            <pre onClick="inject_snippet(this)" data-dismiss="modal"><code>{{example}}</code></pre>
+            <pre onclick="inject_snippet(this)" data-dismiss="modal"><code>{{example}}</code></pre>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -113,7 +134,6 @@
         </div>
       </div>
     </div>
-    
     <!-- /.container -->
     <!-- Bootstrap core JavaScript
 	 ================================================== -->
@@ -125,16 +145,16 @@
     <script src="static/assets/js/ie10-viewport-bug-workaround.js"></script>
     <script>
       $(document).ready(function(){
-        $("#example").click(function(){
-          $("#exampleModal").modal("toggle");
-        });
+      $("#example").click(function(){
+      $("#exampleModal").modal("toggle");
+      });
       });
 
       function toggleModal() {
-        $("#exampleModal").modal("toggle");
+      $("#exampleModal").modal("toggle");
       }
 
       function inject_snippet(preobj) {
-        document.inputs.xml.value = preobj.firstChild.innerText;
+      document.inputs.xml.value = preobj.firstChild.innerText;
       }
     </script>
