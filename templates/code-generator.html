@@ -125,9 +125,11 @@
             <button type="button" class="close" data-dismiss="modal">&times;</button>
             <h4 class="modal-title">NETCONF {{operation}} Snippets</h4>
           </div>
+	  {% for example in snippets %}
           <div class="modal-body">
             <pre onclick="inject_snippet(this)" data-dismiss="modal"><code>{{example}}</code></pre>
           </div>
+	  {% endfor %}
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
           </div>
