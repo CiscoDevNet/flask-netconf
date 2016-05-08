@@ -1,12 +1,11 @@
-'''<netconf-state xmlns="urn:ietf:params:xml:ns:yang:ietf-netconf-monitoring">
-  <schemas/>
-</netconf-state>'''# import the Flask class from the flask module
+# import the Flask class from the flask module
 from flask import Flask, render_template, redirect, url_for, request
 from jinja2 import Template
 from lxml import etree
 from ncclient import manager
 from ncclient.operations import RPCError
 from ncclient.transport import SSHError
+import snippets
 
 # create the application object
 app = Flask(__name__)
@@ -14,17 +13,6 @@ app = Flask(__name__)
 # A simple netconf session cache
 session_cache = {}
 
-#
-# A list of snippets
-#
-snippets_get = [
-    '''<netconf-state xmlns="urn:ietf:params:xml:ns:yang:ietf-netconf-monitoring">
-  <schemas/>
-</netconf-state>''',
-    '''<interfaces-state xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces"/>''',
-    '''<routing-state xmlns="urn:ietf:params:xml:ns:yang:ietf-routing"/>''',
-    '''<bgp-state xmlns="urn:cisco:params:xml:ns:yang:cisco-bgp-state"/>''',
-]
 
 
 #
@@ -77,7 +65,7 @@ def netconf_get():
     kw = {
         "uri": "netconf-get",
         "OPER_GET": "checked",
-        "snippets": snippets_get,
+        "snippets": snippets.get,
     }
     if request.method=='POST':
         for k,v in request.form.iteritems():
@@ -122,7 +110,7 @@ def netconf_get_config():
     kw = {
         "uri": "netconf-get-config",
         "operation": "get-config",
-        "snippets": snippets,
+        "snippets": snippets.get_config,
         "example": '''<interfaces xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces">
   <interface>
     <link-up-down-trap-enable/>
@@ -137,7 +125,7 @@ def netconf_edit_config():
     kw = {
         "uri": "netconf-edit-config",
         "operation": "edit-config",
-        "snippets": snippets,
+        "snippets": snippets.edit_config,
         "example": "TBD"
     }
     return render_template('code-generator.html', **kw)  # render a template
