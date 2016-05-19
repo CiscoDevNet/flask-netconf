@@ -1,11 +1,14 @@
 # import the Flask class from the flask module
-from flask import Flask, render_template, redirect, url_for, request
+from flask import Flask, Markup, render_template, redirect, url_for, request
 from jinja2 import Template
 from lxml import etree
 from ncclient import manager
 from ncclient.operations import RPCError
 from ncclient.transport import SSHError
+import argparse
 import snippets
+import models
+import json
 
 # create the application object
 app = Flask(__name__)
@@ -13,7 +16,11 @@ app = Flask(__name__)
 # A simple netconf session cache
 session_cache = {}
 
+# The default context for loaded models
+context = None
 
+# The data for jstree created at startup
+jstreedata = None
 
 #
 # The Template Python Script for get requests
@@ -59,6 +66,13 @@ default_xml = '''<netconf-state xmlns="urn:ietf:params:xml:ns:yang:ietf-netconf-
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/yang-tree', methods=['GET', 'POST'])
+def yang_tree():
+    kw = {
+        "JSTREEDATA": Markup(json.dumps(jstreedata))
+    }
+    return render_template('tree.html', **kw)
 
 @app.route('/netconf-get', methods=['GET', 'POST'])
 def netconf_get():
@@ -133,5 +147,36 @@ def netconf_edit_config():
 
 # start the server with the 'run()' method
 if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser(description='Webapp to do stuff with netconf and yang!')
+    parser.add_argument("--path", type=str, default="",
+                        help="List of local directories to add to search path.")
+    parser.add_argument("--models", nargs='+',
+                        help="List of local directories to add to search path.")
+    args = parser.parse_args()
+
+    if args.models:
+        # parse in the list of models
+        modules, context = models.load(args.path, args.models)
+
+    if modules and context:
+        # just dump some stuff out for now
+        # print('Context Modules:')
+        # for (m, r) in context.modules:
+        #     print("  {}, revision {}".format(m, r))
+        # print('Added Modules:')
+        # for m in modules:
+        #     print("  {}".format(m.i_modulename))
+        #     def print_child(stmt, n):
+        #         fmt = n * "  " + "{}:{}"
+        #         print(fmt.format(stmt.i_module.i_prefix, stmt.arg))
+        #         if not hasattr(stmt, "i_children"):
+        #             return
+        #         for child in stmt.i_children:
+        #             print_child(child, n+1)
+        #     for stmt in m.i_children:
+        #         print_child(stmt, 2)
+
+        jstreedata = models.create_jstreedata(modules, context)
+
     app.run(host="0.0.0.0", port=8000, debug=True)
-    netconf

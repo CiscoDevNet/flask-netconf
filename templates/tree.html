@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+        <title>YANG Tree</title>
+
+        <!-- PrismJS for syntax highlighting -->
+        <link href="static/css/prism.css" rel="stylesheet" data-noprefix>
+
+        <!-- Bootstrap core CSS -->
+        <link href="static/bootstrap/css/bootstrap.css" rel="stylesheet">
+
+        <!-- Custom styles for this template -->
+        <link href="static/code-generator.css" rel="stylesheet">
+	
+	<!-- JSTree stuff -->
+	<link rel="stylesheet" href="static/jstree/themes/default/style.min.css"/>
+
+        <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+	<script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+	<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+	<![endif]-->
+    </head>
+    <body>
+        <ol class="breadcrumb"> 
+            <li>
+                <a href="/">Home</a>
+            </li>             
+            <li>{{operation}}</li>             
+        </ol>
+        <div class="container">
+            <h1>YANG Tree</h1>
+            <p class="lead">This simple web application allows a developer to invoke simple requests from the starting point of a YANG tree built from a set of models..</p>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div id="tree" class="col-md-4"></div>
+                <div id="content" class="col-md-8"></div>
+            </div>
+        </div>
+        <!-- /.container -->
+        <!-- Bootstrap core JavaScript
+	 ================================================== -->
+        <!-- Placed at the end of the document so the pages load faster -->
+        <script src="static/js/prism.js"></script>
+        <script src="static/assets/js/jquery.min.js"></script>
+        <script src="static/bootstrap/js/bootstrap.min.js"></script>
+        <script src="static/jstree/jstree.min.js"></script>
+        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+        <script src="static/assets/js/ie10-viewport-bug-workaround.js"></script>
+
+<script>
+$(function() {
+  $('#tree').jstree({{JSTREEDATA}});
+  $('#container').on("changed.jstree", function (e, data) {
+    console.log("The selected nodes are:");
+    console.log(data.selected);
+  });
+});
+</script>
+
+
+	
+    </body>
+</html>
