@@ -3,4 +3,5 @@ v/
 .DS_Store
 *.pyc
 _pgbackup/
+pinegrow.json
 
