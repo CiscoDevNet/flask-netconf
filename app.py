@@ -155,6 +155,8 @@ if __name__ == '__main__':
                         help="List of local directories to add to search path.")
     args = parser.parse_args()
 
+    modules = None
+    context = None
     if args.models:
         # parse in the list of models
         modules, context = models.load(args.path, args.models)
