@@ -8,22 +8,22 @@ get = [
     '''<interfaces-state xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces"/>''',
     '''<routing-state xmlns="urn:ietf:params:xml:ns:yang:ietf-routing"/>''',
     '''<bgp-state xmlns="urn:cisco:params:xml:ns:yang:cisco-bgp-state"/>''',
-    '''<native xmlns="urn:ios"/>''',
-    '''<native xmlns="urn:ios">
+    '''<native xmlns="http://cisco.com/ns/yang/ned/ios"/>''',
+    '''<native xmlns="http://cisco.com/ns/yang/ned/ios">
   <ip/>
 </native>''',
-    '''<native xmlns="urn:ios">
+    '''<native xmlns="http://cisco.com/ns/yang/ned/ios">
   <ip><access-list/></ip>
 </native>''',
-    '''<native xmlns="urn:ios">
+    '''<native xmlns="http://cisco.com/ns/yang/ned/ios">
   <ip><route/></ip>
 </native>''',
-    '''<native xmlns="urn:ios">
+    '''<native xmlns="http://cisco.com/ns/yang/ned/ios">
   <router>
     <bgp/>
   </router>
 </native>''',
-    '''<native xmlns="urn:ios">
+    '''<native xmlns="http://cisco.com/ns/yang/ned/ios">
   <router>
     <ospf/>
   </router>
