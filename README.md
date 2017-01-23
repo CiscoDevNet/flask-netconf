@@ -13,7 +13,7 @@ Once pull request #98 on the main ncclient repository has been merged, you **sho
 If you don't need to talk to XR, then running the start script ([```start.sh```](start.sh)) should be adequate. If, however, you do wish to access XR, then this is the basic process tested on _**a mac running El Capitan with homebrew utilities**_:
 
 ```
-16:34 $ git clone http://gitlab.cisco.com/einarnn/flask-netconf.git
+16:34 $ git clone https://github.com/CiscoDevNet/flask-netconf.git
 Cloning into 'flask-netconf'...
 remote: Counting objects: 36, done.
 remote: Compressing objects: 100% (33/33), done.
