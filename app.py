@@ -5,6 +5,7 @@ from lxml import etree
 from ncclient import manager
 from ncclient.operations import RPCError
 from ncclient.transport import SSHError
+from ncclient.transport import AuthenticationError
 import argparse
 import snippets
 import models
@@ -51,13 +52,13 @@ def yang_tree():
     return render_template('tree.html', **kw)
 
 
-def get_connection(kw):
-    if not ('device_port' in kw) or kw['device_port'] == "":
-        kw['device_port'] = 830
+def get_connection(**kw):
+
     session_key = "-".join([kw['device_ip'],
                             kw['device_port'],
                             kw['username'],
                             kw['password']])
+
     if session_key in session_cache:
         m = session_cache[session_key]
     else:
@@ -83,21 +84,33 @@ def netconf_op():
             #if 'OPER' not in k:
             print k,v
             kw[k] = v
-        kw[op[kw['oper']]] = 'checked'
+        if not ('device_port' in kw) or kw['device_port'] == "":
+            kw['device_port'] = "830"
+
+        try:
+            kw[op[kw['oper']]] = 'checked'
+        except KeyError:
+            kw['response']= "no operation (get, get_config, edit_config) specified"
+            return render_template('code-generator.html', **kw)  # render a template for error
+
         if kw['submit'] == 'generate':
             kw['language'] = 'python'
             kw['response'] = get_script_template.render(FILL_THIS=kw['xml'], ACTION=action[kw['oper']])
         elif kw['submit'] == 'send':
+
             m = None
             try:
-                m = get_connection(kw)
+                m = get_connection(**kw)
             except RPCError as e:
                 kw['response'] = e.info
             except SSHError as e:
                 kw['response'] = e.message
+            except AuthenticationError as e:
+                kw['response'] = e.message
             except KeyError as e:
                 kw['resonse'] = e.message
-            except:
+            except Exception as e:
+                print e.message
                 kw['response'] = 'Unknown error!!'
             if m is None:
                 return render_template('code-generator.html', **kw)  # render a template for error
