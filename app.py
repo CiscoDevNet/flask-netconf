@@ -1,6 +1,6 @@
 # import the Flask class from the flask module
 from flask import Flask, Markup, render_template, redirect, url_for, request
-from jinja2 import Template
+
 from lxml import etree
 from ncclient import manager
 from ncclient.operations import RPCError
@@ -25,44 +25,20 @@ jstreedata = None
 #
 # The Template Python Script for get requests
 #
-get_script_template=Template("""#!/usr/bin/env python
+
 import sys
 from argparse import ArgumentParser
 from ncclient import manager
+from pythonTemplates import get_script_template, action
 
-data = '''<filter>
-  {{FILL_THIS}}
-</filter>'''
-        
-        
-if __name__ == '__main__':
-
-    parser = ArgumentParser(description='Select options.')
-
-    # Input parameters
-    parser.add_argument('--host', type=str, required=True,
-                        help="The device IP or DN")
-    parser.add_argument('-u', '--username', type=str, default='cisco',
-                        help="Go on, guess!")
-    parser.add_argument('-p', '--password', type=str, default='cisco',
-                        help="Yep, this one too! ;-)")
-    parser.add_argument('--port', type=int, default=830,
-                        help="Specify this if you want a non-default port")
-    
-    args = parser.parse_args()
-
-    m =  manager.connect(host=args.host,
-                         port=args.port,
-                         username=args.username,
-                         password=args.password,
-                         device_params={'name':"csr"})
-    print m.get(data)
-""")
 
 default_xml = '''<netconf-state xmlns="urn:ietf:params:xml:ns:yang:ietf-netconf-monitoring">
   <schemas/>
 </netconf-state>'''
 
+op = {'get' : 'OPER_GET',
+      'get_config' : 'OPER_GETCONFIG',
+      'edit_config' : 'OPER_EDITCONFIG'}
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -74,74 +50,77 @@ def yang_tree():
     }
     return render_template('tree.html', **kw)
 
-@app.route('/netconf-get', methods=['GET', 'POST'])
-def netconf_get():
+
+def get_connection(kw):
+    if not ('device_port' in kw) or kw['device_port'] == "":
+        kw['device_port'] = 830
+    session_key = "-".join([kw['device_ip'],
+                            kw['device_port'],
+                            kw['username'],
+                            kw['password']])
+    if session_key in session_cache:
+        m = session_cache[session_key]
+    else:
+        m = manager.connect(host=kw['device_ip'],
+                            port=int(kw['device_port']),
+                            username=kw['username'],
+                            password=kw['password'],
+                            look_for_keys=False,
+                            hostkey_verify=False,
+                            )
+        session_cache[session_key] = m
+    return m
+
+@app.route('/netconf-op', methods=['GET', 'POST'])
+def netconf_op():
     kw = {
-        "uri": "netconf-get",
-        "OPER_GET": "checked",
-        "snippets": snippets.get,
+        "snippets": snippets.snippets,
     }
-    if request.method=='POST':
-        for k,v in request.form.iteritems():
-            if 'OPER' not in k:
-                kw[k] = v
-        if kw['submit']=='generate':
+
+    if request.method == 'POST':
+
+        for k, v in request.form.iteritems():
+            #if 'OPER' not in k:
+            print k,v
+            kw[k] = v
+        kw[op[kw['oper']]] = 'checked'
+        if kw['submit'] == 'generate':
             kw['language'] = 'python'
-            kw['response'] = get_script_template.render(FILL_THIS=kw['xml'])
-        elif kw['submit']=='send':
+            kw['response'] = get_script_template.render(FILL_THIS=kw['xml'], ACTION=action[kw['oper']])
+        elif kw['submit'] == 'send':
+            m = None
             try:
-                if not ('device_port' in kw):
-                    kw['device_port'] = 830
-                session_key = "-".join([kw['device_ip'],
-                                        kw['device_port'],
-                                        kw['username'],
-                                        kw['password'] ])
-                if session_key in session_cache:
-                    m = session_cache[session_key]
-                else:
-                    m =  manager.connect(host=kw['device_ip'],
-                                         port=int(kw['device_port']),
-                                         username=kw['username'],
-                                         password=kw['password'],
-                                         device_params={'name':"csr"})
-                    session_cache[session_key] = m
-                c = m.get('<filter>'+kw['xml']+'</filter>').data_xml
-                kw['language'] = 'xml'
-                kw['response'] = etree.tostring(etree.fromstring(c), pretty_print=True)
+                m = get_connection(kw)
             except RPCError as e:
                 kw['response'] = e.info
             except SSHError as e:
                 kw['response'] = e.message
+            except KeyError as e:
+                kw['resonse'] = e.message
             except:
                 kw['response'] = 'Unknown error!!'
+            if m is None:
+                return render_template('code-generator.html', **kw)  # render a template for error
+
+            if kw['oper'] == 'get':
+                c = m.get('<filter>' + kw['xml'] + '</filter>').data_xml
+                # print etree.tostring(etree.fromstring(c), pretty_print=True)
+                kw['response'] = etree.tostring(etree.fromstring(c), pretty_print=True)
+
+            elif kw['oper'] == 'get_config':
+                c = m.get_config(source='running', filter=('subtree', kw['xml'])).data_xml
+                kw['response'] = etree.tostring(etree.fromstring(c), pretty_print=True)
+
+            elif kw['oper'] == "edit_config":
+                c = m.edit_config(kw['xml'], target='running', format='xml',default_operation='merge')
+                kw['response'] = "edited"
+            else:
+                raise KeyError("no operation (get, get_config, edit_config) specified")
+            kw['language'] = 'xml'
+
     else:
         kw['xml'] = default_xml
-    return render_template('code-generator.html', **kw)  # render a template
 
-
-@app.route('/netconf-get-config', methods=['GET', 'POST'])
-def netconf_get_config():
-    kw = {
-        "uri": "netconf-get-config",
-        "operation": "get-config",
-        "snippets": snippets.get_config,
-        "example": '''<interfaces xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces">
-  <interface>
-    <link-up-down-trap-enable/>
-  </interface>
-</interfaces>'''
-    }
-    return render_template('code-generator.html', **kw)  # render a template
-
-
-@app.route('/netconf-edit-config', methods=['GET', 'POST'])
-def netconf_edit_config():
-    kw = {
-        "uri": "netconf-edit-config",
-        "operation": "edit-config",
-        "snippets": snippets.edit_config,
-        "example": "TBD"
-    }
     return render_template('code-generator.html', **kw)  # render a template
 
 

@@ -72,10 +72,10 @@
                       <input type="radio" name="oper" id="get" value="get" {{OPER_GET}}>get
                     </label>
                     <label class="radio-inline">
-                      <input type="radio" name="oper" id="get-config" value="get-config" {{OPER_GETCONFIG}}>get-config
+                      <input type="radio" name="oper" id="get_config" value="get_config" {{OPER_GETCONFIG}}>get-config
                     </label>
                     <label class="radio-inline">
-                      <input type="radio" name="oper" id="edit-config" value="edit-config" {{OPER_EDITCONFIG}}>edit-config
+                      <input type="radio" name="oper" id="edit_config" value="edit_config" {{OPER_EDITCONFIG}}>edit-config
                     </label>
                   </div>
                 </div>                                 
@@ -115,6 +115,7 @@
           </div>
         </div>                 
       </form>
+
       <!-- Modal -->
     </div>
     <div class="modal fade" id="exampleModal" role="dialog">
@@ -126,7 +127,9 @@
             <h4 class="modal-title">NETCONF {{operation}} Snippets</h4>
           </div>
           <div class="modal-body">
-	  {% for example in snippets %}
+
+	  {% for example in snippets[ 'get' ] %}
+
             <pre onclick="inject_snippet(this)" data-dismiss="modal"><code>{{example}}</code></pre>
 	  {% endfor %}
           </div>
@@ -149,14 +152,38 @@
       $(document).ready(function(){
       $("#example").click(function(){
       $("#exampleModal").modal("toggle");
+
+       <!-- find the radio button that is active -->
+      var ncOper=$('input[name="oper"]:checked').val();
+      <!-- if (window.console) console.log("Operation:" + ncOper); -->
+
+      <!-- find the snippets that is active -->
+      var data = {{ snippets | tojson }};
+      <!-- if (window.console) console.log("snippets:" + data[ncOper]); -->
+
+
+      $("#exampleModal .modal-title").html("Netconf Snippets for " + ncOper)
+
+      <!-- generate dynamic modal depending on snippets -->
+      var body="";
+      $.each(data[ncOper], function(index, value) {
+          <!-- clean out eascape chars -->
+           var cleaned = $('<div/>').text(value).html()
+
+           body +='<pre onclick="inject_snippet(this)" data-dismiss="modal"><code>' + cleaned + '</code></pre>';
+      });
+      <!-- if (window.console) console.log("body" + body); -->
+      $("#exampleModal .modal-body").html(body)
       });
       });
 
       function toggleModal() {
+
       $("#exampleModal").modal("toggle");
       }
 
       function inject_snippet(preobj) {
       document.inputs.xml.value = preobj.firstChild.innerText;
       }
+
     </script>
