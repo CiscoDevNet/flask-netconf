@@ -17,5 +17,5 @@ pip install -r requirements.txt
 #
 # run the data server
 #
-python app.py
+python app.py --path ./models
 

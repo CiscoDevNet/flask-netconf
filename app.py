@@ -17,6 +17,10 @@ app = Flask(__name__)
 # A simple netconf session cache
 session_cache = {}
 
+# this could come from APIC-EM inventory
+device_list = {"10.10.6.2" : ("cisco", "cisco"),
+               "10.10.6.2" : ("cisco", "cisco")
+            }
 # The default context for loaded models
 context = None
 
@@ -133,8 +137,18 @@ def netconf_op():
 
     else:
         kw['xml'] = default_xml
+        kw[op['get']] = 'checked'
 
     return render_template('code-generator.html', **kw)  # render a template
+
+@app.route('/inventory', methods=['GET', 'POST'])
+def inventory():
+    kw = { "devices" : device_list}
+    return render_template("inventory.html", **kw)
+
+@app.route('/device', methods=['GET', 'POST'])
+def device():
+    return render_template("device.html", **kw)
 
 
 # start the server with the 'run()' method

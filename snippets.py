@@ -33,7 +33,8 @@ snippets['get'] = [
 
 
 snippets['get_config'] = [
-    '''<interfaces/>'''
+    '''<interfaces/>''',
+'''<native><interface/></native>'''
 ]
 
 
