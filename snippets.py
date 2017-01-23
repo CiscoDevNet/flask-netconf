@@ -1,7 +1,8 @@
 #
 # Some list of snippets, one for each of get, get-config & edit-config
 #
-get = [
+snippets = {}
+snippets['get'] = [
     '''<netconf-state xmlns="urn:ietf:params:xml:ns:yang:ietf-netconf-monitoring">
   <schemas/>
 </netconf-state>''',
@@ -31,9 +32,27 @@ get = [
 ]
 
 
-get_config = [
+snippets['get_config'] = [
+    '''<interfaces/>'''
 ]
 
 
-edit_config = [
+snippets['edit_config'] = [
+    '''<config>
+      <netconf-yang xmlns="http://cisco.com/yang/cisco-self-mgmt">
+        <cisco-ia xmlns="http://cisco.com/yang/cisco-ia">
+          <snmp-trap-control>
+            <trap-list>
+              <trap-oid>1.3.6.1.4.1.9.9.41.2.0.1</trap-oid>
+            </trap-list>
+            <trap-list>
+              <trap-oid>1.3.6.1.6.3.1.1.5.3</trap-oid>
+            </trap-list>
+            <trap-list>
+              <trap-oid>1.3.6.1.6.3.1.1.5.4</trap-oid>
+            </trap-list>
+          </snmp-trap-control>
+        </cisco-ia>
+      </netconf-yang>
+</config>'''
 ]
