@@ -14,18 +14,18 @@ Please note that this web application has no security as part of its function, b
 
 Optionally, you may also choose to package flasj-netconf as a Docker container. This has not been tested much, but isn't seen to fail. Please ensure you have Docker installed, and then you can do the following while in the flask-netconf top-level directory.
 
-1. Create the Container
+1. Create the Container:
 
     ```
     docker build -t flask-netconf .
     ```
 
-1. Run the Container
+1. Run the Container (port 8000 is the exposed port, modify the [Dockerfile](Dockerfile) to change):
 
     ```
-    docker run -d --name FLASK_NETCONF -p 8000:8000 flask-netconf
+    docker run -d --name FLASK_NETCONF -p <host-port>:8000 flask-netconf
     ```
 
 1. Browse to [`http://localhost:8000`](http://localhost:8000)
 
-No attempts at container distribution so far!
+If you have prevously used this web app running natively with local virtual devices, say XRv or CSR1Kv in a vagrant box, with NETCONF ports mapped to local ports, please remember that the virtual devices are **not** visibile on `127.0.0.1` to the container, and must be accessed via one of your host's actual IP addresses.
