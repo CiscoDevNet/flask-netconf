@@ -17,4 +17,5 @@ pip install -r requirements.txt
 #
 # run the data server
 #
+cd app
 python app.py
