@@ -28,4 +28,4 @@ Optionally, you may also choose to package flasj-netconf as a Docker container. 
 
 1. Browse to [`http://localhost:8000`](http://localhost:8000)
 
-If you have prevously used this web app running natively with local virtual devices, say XRv or CSR1Kv in a vagrant box, with NETCONF ports mapped to local ports, please remember that the virtual devices are **not** visibile on `127.0.0.1` to the container, and must be accessed via one of your host's actual IP addresses.
+If you have prevously used this web app running natively with local virtual devices, say XRv or CSR1Kv in a vagrant box, with NETCONF ports mapped to local ports, please remember that the virtual devices are **not** visible on `127.0.0.1` to the container, and must be accessed via one of your host's actual IP addresses.
