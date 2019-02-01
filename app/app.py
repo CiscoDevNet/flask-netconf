@@ -84,9 +84,9 @@ def netconf_op():
 
     if request.method == 'POST':
 
-        for k, v in request.form.iteritems():
+        for k, v in request.form.items():
             #if 'OPER' not in k:
-            print k,v
+            print(k,v)
             kw[k] = v
         if not ('device_port' in kw) or kw['device_port'] == "":
             kw['device_port'] = "830"
@@ -114,22 +114,22 @@ def netconf_op():
             except KeyError as e:
                 kw['resonse'] = e.message
             except Exception as e:
-                print e.message
+                print(e.message)
                 kw['response'] = 'Unknown error!!'
             if m is None:
                 return render_template('code-generator.html', **kw)  # render a template for error
 
             if kw['oper'] == 'get':
-                c = m.get('<filter>' + kw['xml'] + '</filter>').data_xml
-                # print etree.tostring(etree.fromstring(c), pretty_print=True)
-                kw['response'] = etree.tostring(etree.fromstring(c), pretty_print=True)
+                c = m.get('<filter>' + kw['xml'] + '</filter>').data
+                # print(etree.tostring(etree.fromstring(c), pretty_print=True))
+                kw['response'] = etree.tostring(c, pretty_print=True).decode()
 
             elif kw['oper'] == 'get_config':
-                c = m.get_config(source='running', filter=('subtree', kw['xml'])).data_xml
-                kw['response'] = etree.tostring(etree.fromstring(c), pretty_print=True)
+                c = m.get_config(source='running', filter=('subtree', kw['xml'])).data
+                kw['response'] = etree.tostring(c, pretty_print=True).decode()
 
             elif kw['oper'] == "edit_config":
-                c = m.edit_config(kw['xml'], target='running', format='xml',default_operation='merge')
+                c = m.edit_config(kw['xml'], target='running', format='xml', default_operation='merge')
                 kw['response'] = "edited"
             else:
                 raise KeyError("no operation (get, get_config, edit_config) specified")
