@@ -1,5 +1,5 @@
 # import the Flask class from the flask module
-from flask import Flask, Markup, render_template, redirect, url_for, request
+from quart import Quart, Markup, render_template, redirect, url_for, request
 
 from lxml import etree
 from ncclient import manager
@@ -10,27 +10,35 @@ import argparse
 import snippets
 import models
 import json
+import asyncio
+import aioredis
 
 # create the application object
-app = Flask(__name__)
+app = Quart(__name__)
 
 # A simple netconf session cache
 session_cache = {}
 
 # this could come from APIC-EM inventory
-device_list = {"10.10.6.2" : ("cisco", "cisco"),
-               "10.10.6.2" : ("cisco", "cisco")
-            }
+device_list = { "10.10.6.2" : ("cisco", "cisco"),
+                "10.10.6.2" : ("cisco", "cisco")
+}
+
 # The default context for loaded models
 context = None
+
 
 # The data for jstree created at startup
 jstreedata = None
 
+
+# global reference to redis
+redis_conn = None
+
+
 #
 # The Template Python Script for get requests
 #
-
 import sys
 from argparse import ArgumentParser
 from ncclient import manager
@@ -45,15 +53,15 @@ op = {'get' : 'OPER_GET',
       'get_config' : 'OPER_GETCONFIG',
       'edit_config' : 'OPER_EDITCONFIG'}
 @app.route('/')
-def index():
-    return render_template('index.html')
+async def index():
+    return await render_template('index.html')
 
 @app.route('/yang-tree', methods=['GET', 'POST'])
-def yang_tree():
+async def yang_tree():
     kw = {
         "JSTREEDATA": Markup(json.dumps(jstreedata))
     }
-    return render_template('tree.html', **kw)
+    return await render_template('tree.html', **kw)
 
 
 def get_connection(**kw):
@@ -77,14 +85,15 @@ def get_connection(**kw):
     return m
 
 @app.route('/netconf-op', methods=['GET', 'POST'])
-def netconf_op():
+async def netconf_op():
     kw = {
         "snippets": snippets.snippets,
     }
 
     if request.method == 'POST':
 
-        for k, v in request.form.items():
+        form = await request.form
+        for k, v in form.items():
             #if 'OPER' not in k:
             print(k,v)
             kw[k] = v
@@ -100,6 +109,7 @@ def netconf_op():
         if kw['submit'] == 'generate':
             kw['language'] = 'python'
             kw['response'] = get_script_template.render(FILL_THIS=kw['xml'], ACTION=action[kw['oper']])
+            await redis_conn.execute('incr', 'generate')
         elif kw['submit'] == 'send':
 
             m = None
@@ -117,15 +127,17 @@ def netconf_op():
                 print(e.message)
                 kw['response'] = 'Unknown error!!'
             if m is None:
-                return render_template('code-generator.html', **kw)  # render a template for error
+                return await render_template('code-generator.html', **kw)  # render a template for error
 
             if kw['oper'] == 'get':
                 c = m.get('<filter>' + kw['xml'] + '</filter>').data
+                await redis_conn.execute('incr', 'get')
                 # print(etree.tostring(etree.fromstring(c), pretty_print=True))
                 kw['response'] = etree.tostring(c, pretty_print=True).decode()
 
             elif kw['oper'] == 'get_config':
                 c = m.get_config(source='running', filter=('subtree', kw['xml'])).data
+                await redis_conn.execute('incr', 'get_config')
                 kw['response'] = etree.tostring(c, pretty_print=True).decode()
 
             elif kw['oper'] == "edit_config":
@@ -139,16 +151,16 @@ def netconf_op():
         kw['xml'] = default_xml
         kw[op['get']] = 'checked'
 
-    return render_template('code-generator.html', **kw)  # render a template
+    return await render_template('code-generator.html', **kw)  # render a template
 
 @app.route('/inventory', methods=['GET', 'POST'])
-def inventory():
+async def inventory():
     kw = { "devices" : device_list}
     return render_template("inventory.html", **kw)
 
 @app.route('/device', methods=['GET', 'POST'])
-def device():
-    return render_template("device.html", **kw)
+async def device():
+    return await render_template("device.html", **kw)
 
 
 # start the server with the 'run()' method
@@ -187,4 +199,19 @@ if __name__ == '__main__':
 
         jstreedata = models.create_jstreedata(modules, context)
 
+    #
+    # initialize redis
+    #
+    async def init_redis():
+        global redis_conn
+        redis_conn = await aioredis.create_connection(
+            'redis://localhost', encoding='utf-8')
+        await redis_conn.execute('set', 'generate', 0)
+        await redis_conn.execute('set', 'get_config', 0)
+        await redis_conn.execute('set', 'get', 0)
+    asyncio.get_event_loop().run_until_complete(init_redis())
+
+    #
+    # run the web application
+    #
     app.run(host="0.0.0.0", port=8000)

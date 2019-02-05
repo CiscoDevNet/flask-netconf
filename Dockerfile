@@ -16,7 +16,6 @@ RUN apk add --update --no-cache \
         python3 \
 	py3-cffi \
         py3-paramiko \
-        py3-flask \
         py3-jinja2 \
         py3-markupsafe \
         py3-lxml && \
@@ -24,7 +23,17 @@ RUN apk add --update --no-cache \
     pip3 install -U pip && \
     pip3 --verbose install \
         pyang>=1.7.8 \
-        ncclient>=0.6.3
+        ncclient>=0.6.3 \
+        quart \
+	quart-openapi && \
+    apk add --update --no-cache \
+        python3-dev \
+        build-base && \
+    pip3 --verbose install \
+        aioredis && \
+    apk del \
+        python3-dev \
+        build-base
 
 COPY ./app /app
 COPY boot.sh /boot.sh
