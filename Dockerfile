@@ -12,6 +12,7 @@ FROM alpine:3.8
 # with this approach.
 #
 RUN apk add --update --no-cache \
+        redis \
         python3 \
 	py3-cffi \
         py3-paramiko \
@@ -26,9 +27,12 @@ RUN apk add --update --no-cache \
         ncclient>=0.6.3
 
 COPY ./app /app
+COPY boot.sh /boot.sh
 
 WORKDIR /app
 
 EXPOSE 8000
 
-CMD python3 app.py
+# CMD python3 app.py
+# CMD ["/sbin/init"]
+CMD ["/boot.sh"]
